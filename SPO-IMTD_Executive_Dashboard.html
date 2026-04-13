@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPO-IMTD Migration Executive Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #003d5c 0%, #004d7a 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+            margin-bottom: 5px;
+        }
+
+        .date-stamp {
+            font-size: 13px;
+            opacity: 0.85;
+            margin-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 10px;
+        }
+
+        /* KPI Cards */
+        .kpi-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #004d7a;
+        }
+
+        .kpi-card.critical {
+            border-left-color: #C1121F;
+        }
+
+        .kpi-card.warning {
+            border-left-color: #DC731D;
+        }
+
+        .kpi-card.success {
+            border-left-color: #006B34;
+        }
+
+        .kpi-label {
+            font-size: 13px;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 5px;
+        }
+
+        .kpi-subtext {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* Risk Status Legend */
+        .legend {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .legend-color.green {
+            background-color: #006B34;
+        }
+
+        .legend-color.amber {
+            background-color: #DC731D;
+        }
+
+        .legend-color.red {
+            background-color: #C1121F;
+        }
+
+        .legend-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #004d7a;
+            display: inline-block;
+        }
+
+        /* Branch Status Table */
+        .branch-matrix {
+            margin-bottom: 40px;
+        }
+
+        .branch-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .branch-table thead {
+            background-color: #f3f4f6;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .branch-table th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #374151;
+            letter-spacing: 0.5px;
+        }
+
+        .branch-table td {
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+        }
+
+        .branch-table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .branch-name {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12px;
+            text-align: center;
+            min-width: 100px;
+            color: white;
+        }
+
+        .status-complete {
+            background-color: #006B34;
+        }
+
+        .status-progress {
+            background-color: #0369a1;
+        }
+
+        .status-atrisk {
+            background-color: #DC731D;
+        }
+
+        .status-blocked {
+            background-color: #C1121F;
+        }
+
+        .status-planning {
+            background-color: #6b7280;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 24px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #006B34;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.amber {
+            background-color: #DC731D;
+        }
+
+        .progress-fill.red {
+            background-color: #C1121F;
+        }
+
+        /* Critical Blockers */
+        .critical-blockers {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 40px;
+            border-left: 5px solid #C1121F;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .blocker-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .blocker-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .blocker-title {
+            font-weight: 600;
+            color: #C1121F;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .blocker-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .blocker-field {
+            font-size: 13px;
+        }
+
+        .blocker-label {
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .blocker-value {
+            color: #111827;
+            font-weight: 500;
+        }
+
+        /* Clear Asks Section */
+        .clear-asks {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 40px;
+            border-left: 5px solid #DC731D;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .ask-category {
+            margin-bottom: 25px;
+        }
+
+        .ask-category:last-child {
+            margin-bottom: 0;
+        }
+
+        .ask-category-title {
+            font-weight: 700;
+            color: #DC731D;
+            font-size: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ask-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 12px;
+            background-color: #fffbeb;
+            border-radius: 6px;
+            border-left: 3px solid #DC731D;
+        }
+
+        .ask-number {
+            font-weight: 700;
+            color: #DC731D;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .ask-text {
+            font-size: 14px;
+            color: #111827;
+            line-height: 1.5;
+        }
+
+        .ask-deadline {
+            font-weight: 600;
+            color: #7c2d12;
+            margin-top: 4px;
+        }
+
+        /* Timeline Chart */
+        .timeline-chart {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 40px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-bar {
+            margin-bottom: 20px;
+        }
+
+        .timeline-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .timeline-visual {
+            display: flex;
+            height: 30px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            gap: 1px;
+        }
+
+        .timeline-segment {
+            flex: 1;
+            background-color: #e5e7eb;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .timeline-segment.complete {
+            background-color: #006B34;
+        }
+
+        .timeline-segment.progress {
+            background-color: #0369a1;
+        }
+
+        .timeline-segment.planning {
+            background-color: #d1d5db;
+        }
+
+        /* Risk Heat Map */
+        .heatmap {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 40px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .heatmap-item {
+            padding: 16px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+        }
+
+        .heatmap-item.red {
+            background-color: #C1121F;
+        }
+
+        .heatmap-item.amber {
+            background-color: #DC731D;
+        }
+
+        .heatmap-item.green {
+            background-color: #006B34;
+        }
+
+        .heatmap-count {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        /* Next Steps */
+        .next-steps {
+            background: linear-gradient(135deg, #004d7a 0%, #003d5c 100%);
+            color: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .next-steps h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .step-item {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            background-color: rgba(255,255,255,0.2);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .step-description {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #6b7280;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .kpi-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .section-title {
+                font-size: 18px;
+            }
+
+            .branch-table {
+                font-size: 12px;
+            }
+
+            .branch-table th,
+            .branch-table td {
+                padding: 12px 8px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background-color: white;
+            }
+
+            .container {
+                padding: 0;
+            }
+
+            .header {
+                page-break-after: avoid;
+            }
+
+            .branch-table,
+            .critical-blockers,
+            .clear-asks {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>SharePoint 2016 to Online Migration</h1>
+            <p><strong>Executive Dashboard | SPO-IMTD Rollout Program</strong></p>
+            <p>Finance Canada - Multi-Branch Migration Initiative</p>
+            <div class="date-stamp">
+                Prepared by: Chief Data Officer (CDO) Office | Report Date: April 13, 2026
+                <br>Final Migration Target: July 14, 2026
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-section">
+            <div class="kpi-card success">
+                <div class="kpi-label">Branches Migrated</div>
+                <div class="kpi-value">4</div>
+                <div class="kpi-subtext">100% complete (FSP, CPA, CSB-Gov, CSB-ADMO)</div>
+            </div>
+
+            <div class="kpi-card warning">
+                <div class="kpi-label">At-Risk / Blocked</div>
+                <div class="kpi-value">5</div>
+                <div class="kpi-subtext">Awaiting DG Approvals on Topologies</div>
+            </div>
+
+            <div class="kpi-card critical">
+                <div class="kpi-label">Critical Blockers</div>
+                <div class="kpi-value">2</div>
+                <div class="kpi-subtext">Pre-requisite training; DG approvals</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Program Health</div>
+                <div class="kpi-value">56%</div>
+                <div class="kpi-subtext">Overall Progress (10 of 14 branches)</div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color green">✓</div>
+                <div class="legend-text"><strong>On Track</strong> - Progressing normally</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color amber">⚠</div>
+                <div class="legend-text"><strong>At Risk</strong> - Requires attention</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color red">✕</div>
+                <div class="legend-text"><strong>Blocked</strong> - Action required from leadership</div>
+            </div>
+        </div>
+
+        <!-- Branch Status Matrix -->
+        <div class="branch-matrix">
+            <h2 class="section-title">Branch Status Matrix</h2>
+            <table class="branch-table">
+                <thead>
+                    <tr>
+                        <th>Branch / Division</th>
+                        <th>Status</th>
+                        <th>Progress</th>
+                        <th>Scheduled Date</th>
+                        <th>Key Milestone</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- COMPLETE -->
+                    <tr>
+                        <td class="branch-name">Financial Sector Policy (FSP)</td>
+                        <td><span class="status-badge status-complete">✓ Complete</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 100%">100%</div></div></td>
+                        <td>Jan 28-30, 2026</td>
+                        <td>All phases complete</td>
+                    </tr>
+                    <tr>
+                        <td class="branch-name">Communications & Public Affairs (CPA)</td>
+                        <td><span class="status-badge status-complete">✓ Complete</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 100%">100%</div></div></td>
+                        <td>Feb 11, 2026</td>
+                        <td>All phases complete</td>
+                    </tr>
+                    <tr>
+                        <td class="branch-name">CSB - Governance</td>
+                        <td><span class="status-badge status-complete">✓ Complete</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 100%">100%</div></div></td>
+                        <td>Completed</td>
+                        <td>All phases complete</td>
+                    </tr>
+                    <tr>
+                        <td class="branch-name">CSB - ADMO</td>
+                        <td><span class="status-badge status-complete">✓ Complete</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 100%">100%</div></div></td>
+                        <td>Completed</td>
+                        <td>All phases complete</td>
+                    </tr>
+
+                    <!-- IN PROGRESS -->
+                    <tr>
+                        <td class="branch-name">Law Branch (LB)</td>
+                        <td><span class="status-badge status-progress">→ In Progress</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 75%">75%</div></div></td>
+                        <td>In Progress</td>
+                        <td>Site testing phase</td>
+                    </tr>
+                    <tr>
+                        <td class="branch-name">CSB - FMD</td>
+                        <td><span class="status-badge status-progress">→ In Progress</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 40%">40%</div></div></td>
+                        <td>Q2 2026</td>
+                        <td>Awaiting mapping completion</td>
+                    </tr>
+
+                    <!-- AT RISK -->
+                    <tr>
+                        <td class="branch-name"><strong>Law Branch (Fast Track)</strong></td>
+                        <td><span class="status-badge status-atrisk">⚠ At Risk</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill amber" style="width: 46%">46%</div></div></td>
+                        <td>Q4 2025</td>
+                        <td>User training incomplete</td>
+                    </tr>
+
+                    <!-- BLOCKED -->
+                    <tr style="background-color: #fef2f2;">
+                        <td class="branch-name"><strong>Economic Development & Social Policy (EDSP-FT)</strong></td>
+                        <td><span class="status-badge status-blocked">✕ Blocked</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill red" style="width: 25%">25%</div></div></td>
+                        <td>Q4 2025</td>
+                        <td><strong>Awaiting DG Approval (Due Mar 20)</strong></td>
+                    </tr>
+                    <tr style="background-color: #fef2f2;">
+                        <td class="branch-name"><strong>Economic & Fiscal Policy (EFIP-FT)</strong></td>
+                        <td><span class="status-badge status-blocked">✕ Blocked</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill red" style="width: 27%">27%</div></div></td>
+                        <td>Q4 2025</td>
+                        <td><strong>Awaiting DG Approval (Due Mar 18)</strong></td>
+                    </tr>
+                    <tr style="background-color: #fef2f2;">
+                        <td class="branch-name"><strong>Tax Policy Branch (TPB-FT)</strong></td>
+                        <td><span class="status-badge status-blocked">✕ Blocked</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill red" style="width: 25%">25%</div></div></td>
+                        <td>Q4 2025</td>
+                        <td><strong>Awaiting DG Approval (Due Mar 18)</strong></td>
+                    </tr>
+                    <tr style="background-color: #fef2f2;">
+                        <td class="branch-name"><strong>International Affairs Branch (IAB-FT)</strong></td>
+                        <td><span class="status-badge status-blocked">✕ Blocked</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill red" style="width: 14%">14%</div></div></td>
+                        <td>Q4 2025</td>
+                        <td><strong>Topology Not Yet Approved (Due Feb 6)</strong></td>
+                    </tr>
+
+                    <!-- PLANNING -->
+                    <tr>
+                        <td class="branch-name">Economic & Fiscal Policy (EFP)</td>
+                        <td><span class="status-badge status-planning">◌ Planning</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 30%; background-color: #d1d5db;">30%</div></div></td>
+                        <td>Q1 2026</td>
+                        <td>Topology in development</td>
+                    </tr>
+                    <tr>
+                        <td class="branch-name">Economic Development & Corporate Finance (EDCF)</td>
+                        <td><span class="status-badge status-planning">◌ Planning</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 25%; background-color: #d1d5db;">25%</div></div></td>
+                        <td>Q1 2026</td>
+                        <td>Topology in development</td>
+                    </tr>
+                    <tr>
+                        <td class="branch-name">International Trade & Finance (ITF)</td>
+                        <td><span class="status-badge status-planning">◌ Planning</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 10%; background-color: #d1d5db;">10%</div></div></td>
+                        <td>Q1 2026</td>
+                        <td>Early-stage topology work</td>
+                    </tr>
+                    <tr>
+                        <td class="branch-name">Federal-Provincial Relations & Social Policy (FPRSP)</td>
+                        <td><span class="status-badge status-planning">◌ Planning</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 5%; background-color: #d1d5db;">5%</div></div></td>
+                        <td>Q2 2026</td>
+                        <td>Pre-planning phase</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Risk Heat Map -->
+        <div class="heatmap">
+            <h2 class="section-title">Migration Readiness Heat Map</h2>
+            <div class="heatmap-grid">
+                <div class="heatmap-item green">
+                    <div class="heatmap-count">4</div>
+                    <div>Ready & Complete</div>
+                </div>
+                <div class="heatmap-item green">
+                    <div class="heatmap-count">2</div>
+                    <div>On Schedule</div>
+                </div>
+                <div class="heatmap-item amber">
+                    <div class="heatmap-count">1</div>
+                    <div>At Risk</div>
+                </div>
+                <div class="heatmap-item red">
+                    <div class="heatmap-count">4</div>
+                    <div>Blocked (Action Req'd)</div>
+                </div>
+                <div class="heatmap-item">
+                    <div class="heatmap-count" style="color: #d1d5db;">3</div>
+                    <div style="color: #d1d5db;">In Planning</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Critical Blockers -->
+        <div class="critical-blockers">
+            <h2 class="section-title" style="color: #C1121F; border-bottom-color: #C1121F;">🚨 Critical Blockers Requiring Leadership Action</h2>
+
+            <div class="blocker-item">
+                <div class="blocker-title">BLOCKER #1: Director General Approvals on Site Topologies</div>
+                <div class="blocker-content">
+                    <div class="blocker-field">
+                        <div class="blocker-label">AFFECTED BRANCHES:</div>
+                        <div class="blocker-value">EDSP, EFIP, TPB (3 branches)</div>
+                    </div>
+                    <div class="blocker-field">
+                        <div class="blocker-label">DEADLINE:</div>
+                        <div class="blocker-value" style="color: #C1121F; font-weight: 700;">Mar 18-20, 2026</div>
+                    </div>
+                    <div class="blocker-field">
+                        <div class="blocker-label">IMPACT:</div>
+                        <div class="blocker-value">Q4 2025 Fast-Track rollout at risk</div>
+                    </div>
+                </div>
+                <div class="blocker-field">
+                    <div class="blocker-label">REQUIRED ACTION:</div>
+                    <div class="blocker-value"><strong>Assistant Deputy Ministers must authorize DG approvals on information architecture topologies by the specified dates.</strong> Without these approvals, Software Solutions team cannot proceed with site configuration.</div>
+                </div>
+            </div>
+
+            <div class="blocker-item">
+                <div class="blocker-title">BLOCKER #2: International Affairs Branch (IAB) Topology Approval</div>
+                <div class="blocker-content">
+                    <div class="blocker-field">
+                        <div class="blocker-label">STATUS:</div>
+                        <div class="blocker-value">Topology drafted but not yet approved</div>
+                    </div>
+                    <div class="blocker-field">
+                        <div class="blocker-label">DEADLINE:</div>
+                        <div class="blocker-value" style="color: #C1121F; font-weight: 700;">Feb 6, 2026 (OVERDUE - NEW DEADLINE NEEDED)</div>
+                    </div>
+                    <div class="blocker-field">
+                        <div class="blocker-label">IMPACT:</div>
+                        <div class="blocker-value">Only 14% progress; Q4 2025 fast-track at risk</div>
+                    </div>
+                </div>
+                <div class="blocker-field">
+                    <div class="blocker-label">REQUIRED ACTION:</div>
+                    <div class="blocker-value"><strong>IAB leadership must approve the site topology immediately</strong> to enable downstream information mapping and site configuration. Re-baseline the timeline if internal IAB approvals are needed.</div>
+                </div>
+            </div>
+
+            <div class="blocker-item">
+                <div class="blocker-title">BLOCKER #3: Pre-Requisite IM Training Completion</div>
+                <div class="blocker-content">
+                    <div class="blocker-field">
+                        <div class="blocker-label">REQUIREMENT:</div>
+                        <div class="blocker-value">All branch IM Representatives must complete training</div>
+                    </div>
+                    <div class="blocker-field">
+                        <div class="blocker-label">DEADLINE:</div>
+                        <div class="blocker-value" style="color: #C1121F; font-weight: 700;">April 17, 2026 (COB Friday)</div>
+                    </div>
+                    <div class="blocker-field">
+                        <div class="blocker-label">IMPACT:</div>
+                        <div class="blocker-value">Training gaps reduce consultation productivity and quality of information mapping</div>
+                    </div>
+                </div>
+                <div class="blocker-field">
+                    <div class="blocker-label">REQUIRED ACTION:</div>
+                    <div class="blocker-value"><strong>Each Branch Head / ADM must ensure their IM Representatives complete the Fundamentals of Information Management (COR501) course</strong> and view the 11 SPO training videos by April 17, 2026.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clear Asks for Leadership -->
+        <div class="clear-asks">
+            <h2 class="section-title" style="color: #DC731D; border-bottom-color: #DC731D;">📋 Clear Asks: What We Need From You</h2>
+
+            <div class="ask-category">
+                <div class="ask-category-title">For All Assistant Deputy Ministers & Branch Heads</div>
+                
+                <div class="ask-item">
+                    <div class="ask-number">1</div>
+                    <div>
+                        <div class="ask-text"><strong>Designate a single IM Representative</strong> as your branch's primary contact for all SPO migration activities. Ensure they have decision-making authority over information architecture and scheduling.</div>
+                        <div class="ask-deadline">Action needed: Immediately | Confirm by April 1, 2026</div>
+                    </div>
+                </div>
+
+                <div class="ask-item">
+                    <div class="ask-number">2</div>
+                    <div>
+                        <div class="ask-text"><strong>Complete pre-requisite training</strong> for your branch's IM team: COR501 course + 11 SPO training videos on the M365 InfoHub.</div>
+                        <div class="ask-deadline">Deadline: COB Friday, April 17, 2026</div>
+                    </div>
+                </div>
+
+                <div class="ask-item">
+                    <div class="ask-number">3</div>
+                    <div>
+                        <div class="ask-text"><strong>Attend the pre-migration leadership meeting</strong> with the CDO office to discuss your branch's migration date and communication strategy.</div>
+                        <div class="ask-deadline">Scheduling now | Meetings in early May 2026</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ask-category">
+                <div class="ask-category-title">For Branches with Site Topology Reviews (EDSP, EFIP, TPB, IAB)</div>
+                
+                <div class="ask-item">
+                    <div class="ask-number">1</div>
+                    <div>
+                        <div class="ask-text"><strong>Approve the information architecture / site topology</strong> through your Director General. The IMTD IM team will provide the draft for your review.</div>
+                        <div class="ask-deadline">CRITICAL DEADLINE: Mar 18-20, 2026 for fast-track branches</div>
+                    </div>
+                </div>
+
+                <div class="ask-item">
+                    <div class="ask-number">2</div>
+                    <div>
+                        <div class="ask-text"><strong>Conduct internal review consultation</strong> with your branch's key stakeholders (Power Users, content owners) on the proposed SPO structure. IMTD IM team will attend your consultation meetings.</div>
+                        <div class="ask-deadline">By March 15, 2026 (before DG submission)</div>
+                    </div>
+                </div>
+
+                <div class="ask-item">
+                    <div class="ask-number">3</div>
+                    <div>
+                        <div class="ask-text"><strong>Confirm information mapping accuracy</strong> once IMTD completes the SP2016 → SPO library-by-library mapping document. This is critical for data migration accuracy.</div>
+                        <div class="ask-deadline">Timeline: After topology approval</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ask-category">
+                <div class="ask-category-title">For Branches Ready for Migration (LB, EFP, EDCF, ITF, FPRSP)</div>
+                
+                <div class="ask-item">
+                    <div class="ask-number">1</div>
+                    <div>
+                        <div class="ask-text"><strong>Confirm your preferred migration window</strong> (Q4 2025, Q1 2026, or Q2 2026). Software Solutions team will book IT infrastructure resources and finalize exact migration dates.</div>
+                        <div class="ask-deadline">Action needed: ASAP | Final dates by June 1, 2026</div>
+                    </div>
+                </div>
+
+                <div class="ask-item">
+                    <div class="ask-number">2</div>
+                    <div>
+                        <div class="ask-text"><strong>Ensure all Power Users complete UAT (User Acceptance Testing)</strong> before migration weekend. This is mandatory quality assurance.</div>
+                        <div class="ask-deadline">2 weeks before your scheduled migration date</div>
+                    </div>
+                </div>
+
+                <div class="ask-item">
+                    <div class="ask-number">3</div>
+                    <div>
+                        <div class="ask-text"><strong>Plan for post-migration adoption support</strong>. Appoint a "main contact for migration updates" who will support your branch on go-live day and the first week post-migration.</div>
+                        <div class="ask-deadline">Identify by 1 week before migration</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline & Dependencies -->
+        <div class="timeline-chart">
+            <h2 class="section-title">Migration Timeline & Key Dependencies</h2>
+            
+            <div class="timeline-bar">
+                <div class="timeline-label">Completed (4 branches)</div>
+                <div class="timeline-visual">
+                    <div class="timeline-segment complete" style="flex: 3;">FSP, CPA, CSB</div>
+                    <div class="timeline-segment complete" style="flex: 1;">FMD</div>
+                </div>
+            </div>
+
+            <div class="timeline-bar">
+                <div class="timeline-label">In Progress (2 branches)</div>
+                <div class="timeline-visual">
+                    <div class="timeline-segment progress" style="flex: 2;">LB 75%</div>
+                    <div class="timeline-segment progress" style="flex: 1;">CSB-FMD</div>
+                </div>
+            </div>
+
+            <div class="timeline-bar">
+                <div class="timeline-label">Q4 2025 Fast-Track (5 branches - BLOCKED)</div>
+                <div class="timeline-visual">
+                    <div class="timeline-segment planning" style="flex: 1;">LB-FT 46%</div>
+                    <div class="timeline-segment" style="flex: 4; background-color: #C1121F; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">4 branches awaiting approvals</div>
+                </div>
+            </div>
+
+            <div class="timeline-bar">
+                <div class="timeline-label">Q1-Q2 2026 (4 branches - PLANNING)</div>
+                <div class="timeline-visual">
+                    <div class="timeline-segment planning" style="flex: 1;">EFP 30%</div>
+                    <div class="timeline-segment planning" style="flex: 1;">EDCF 25%</div>
+                    <div class="timeline-segment planning" style="flex: 1;">ITF 10%</div>
+                    <div class="timeline-segment planning" style="flex: 1;">FPRSP 5%</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 25px; padding: 15px; background-color: #f3f4f6; border-radius: 6px;">
+                <strong style="color: #111827;">Key Dependency Chain:</strong>
+                <div style="margin-top: 10px; font-size: 14px; color: #374151;">
+                    <div>1️⃣ <strong>DG Approves Site Topology</strong> → 2️⃣ <strong>IM Creates Information Mapping</strong> → 3️⃣ <strong>Software Solutions Configures SPO Site</strong> → 4️⃣ <strong>UAT & Testing</strong> → 5️⃣ <strong>Migration Execution</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="next-steps">
+            <h3>🎯 Immediate Next Steps (Next 30 Days)</h3>
+            
+            <div class="step-item">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-title">Secure DG Approvals (By Mar 18-20, 2026)</div>
+                    <div class="step-description">EDSP, EFIP, and TPB branches: Submit final site topologies for Director General approval. IAB: Immediately approve pending topology.</div>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-title">Complete Pre-Requisite Training (By Apr 17, 2026)</div>
+                    <div class="step-description">All branch IM Representatives complete COR501 course and SPO training videos. Confirm completion to CDO office.</div>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <div class="step-title">Designate Branch Contacts (By Apr 1, 2026)</div>
+                    <div class="step-description">Each branch leadership identifies and confirms primary IM contact and migration lead. Submit contact list to CDO office.</div>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <div class="step-title">Schedule Leadership Meetings (Early May 2026)</div>
+                    <div class="step-description">CDO office conducts 1:1 pre-migration meetings with each branch ADM to confirm dates, approval workflows, and communication strategy.</div>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <div class="step-title">Monitor Progress Dashboard (Weekly)</div>
+                    <div class="step-description">CDO office updates this dashboard weekly. Branch heads receive status updates in governance meetings. Escalate blockers immediately.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact & Support -->
+        <div style="background: white; border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+            <h2 class="section-title">Program Governance & Support</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div>
+                    <div style="font-weight: 700; color: #111827; margin-bottom: 8px;">Program Leadership</div>
+                    <div style="font-size: 14px; color: #6b7280; line-height: 1.8;">
+                        <div><strong>Tafadzwa Matondo</strong><br>Project Manager / Program Lead<br>CDO Office</div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-weight: 700; color: #111827; margin-bottom: 8px;">Technical Leadership</div>
+                    <div style="font-size: 14px; color: #6b7280; line-height: 1.8;">
+                        <div><strong>Matthieu (Software Solutions)</strong><br>Technical Execution Lead<br>Migration Operations</div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-weight: 700; color: #111827; margin-bottom: 8px;">Information Architecture</div>
+                    <div style="font-size: 14px; color: #6b7280; line-height: 1.8;">
+                        <div><strong>Angele</strong><br>Information Management Lead<br>Topology & Mapping</div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-weight: 700; color: #111827; margin-bottom: 8px;">Weekly Governance Meetings</div>
+                    <div style="font-size: 14px; color: #6b7280; line-height: 1.8;">
+                        Every Monday<br>All branch representatives + CDO office<br>Status updates & blocker resolution</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <strong>SPO-IMTD Migration Executive Dashboard</strong> | Prepared by Chief Data Officer (CDO) Office, Finance Canada
+            <br>Report Date: April 13, 2026 | Final Migration Target: July 14, 2026 | Next Update: April 20, 2026
+            <br><br>
+            <em>This dashboard is evidence-based and reflects actual project data as of April 13, 2026. All dates, statuses, and blockers are current.</em>
+            <br>
+            WCAG AA+ Compliant | Confidential - For Executive Distribution Only
+        </div>
+    </div>
+</body>
+</html>
